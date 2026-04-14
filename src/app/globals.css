@@ -1,0 +1,78 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&display=swap');
+
+:root {
+  /* Hintergründe — warm, nicht kalt-schwarz */
+  --bg-base: #0E0C0B;
+  --bg-surface: #171412;
+  --bg-elevated: #211E1B;
+  --bg-subtle: #2A2622;
+
+  /* Text */
+  --text-primary: #F0EAE3;
+  --text-secondary: #8C8078;
+  --text-muted: #524A44;
+
+  /* Akzentfarbe — warmes Kupfer/Amber */
+  --accent: #C97B4B;
+  --accent-subtle: #3D2A1A;
+  --accent-hover: #D98B5A;
+
+  /* Status-Farben */
+  --status-green: #5CAF7A;
+  --status-yellow: #C4933A;
+  --status-red: #C45A5A;
+
+  /* Kontext-Badges */
+  --ctx-swisscom: #4A8FC4;
+  --ctx-brandarchitects: #C97B4B;
+  --ctx-visari: #8B6FC4;
+  --ctx-privat: #5CAF7A;
+}
+
+body {
+  color: var(--text-primary);
+  background: var(--bg-base);
+  font-family: "Geist Sans", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-subtle);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Focus Ring */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* Typewriter animation for AI suggestions */
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.animate-typewriter {
+  overflow: hidden;
+  white-space: nowrap;
+  animation: typewriter 1s steps(40) forwards;
+}
