@@ -105,8 +105,10 @@ export function ContactFormDialog({ open, onOpenChange, contact, onSaved }: Cont
       }
       onSaved()
       onOpenChange(false)
-    } catch {
-      toast("Fehler beim Speichern", "error")
+    } catch (err) {
+      console.error("Kontakt speichern Fehler:", err)
+      const message = err instanceof Error ? err.message : "Unbekannter Fehler"
+      toast(`Fehler beim Speichern: ${message}`, "error")
     } finally {
       setSaving(false)
     }
