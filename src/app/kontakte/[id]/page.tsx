@@ -27,6 +27,7 @@ import {
   Plus,
   ExternalLink,
 } from "lucide-react"
+import { useChatStore } from "@/store/chat"
 
 const contextBadgeVariant: Record<Context, "swisscom" | "brandarchitects" | "visari" | "privat"> = {
   swisscom: "swisscom",
@@ -92,6 +93,9 @@ export default function KontaktProfilPage() {
       ])
       setContact(c)
       setInteractions(i)
+      if (c) {
+        useChatStore.getState().setCurrentScreen(`kontaktprofil:${c.firstName} ${c.lastName} (${c.company ?? ""})`)
+      }
     } catch {
       toast("Fehler beim Laden des Kontakts", "error")
     } finally {
