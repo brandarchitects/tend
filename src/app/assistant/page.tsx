@@ -150,7 +150,7 @@ export default function AssistantPage() {
 
   return (
     <AppShell>
-      <div className="flex h-[calc(100vh-8rem)] flex-col md:h-[calc(100vh-6rem)]">
+      <div className="flex h-[calc(100dvh-10rem)] flex-col lg:h-[calc(100dvh-8rem)]">
         {/* Header */}
         <div className="mb-4 flex items-center gap-2">
           <Sparkles size={20} className="text-accent" />

@@ -6,7 +6,8 @@ import { AppShell } from "@/components/app-shell"
 import { Card, CardContent } from "@/components/ui/card"
 import { getContacts } from "@/lib/contacts"
 import { getAllInteractions } from "@/lib/interactions"
-import type { Contact, Interaction } from "@/lib/types"
+import { useDataStore } from "@/store/data"
+import type { Interaction } from "@/lib/types"
 import { Activity, Coffee, Mail, Phone, Link } from "lucide-react"
 
 const channelIcons: Record<string, React.ReactNode> = {
@@ -25,16 +26,19 @@ const channelLabels: Record<string, string> = {
 
 export default function AktivitaetenPage() {
   const router = useRouter()
-  const [interactions, setInteractions] = useState<Interaction[]>([])
-  const [contacts, setContacts] = useState<Contact[]>([])
-  const [loading, setLoading] = useState(true)
+  const {
+    contacts, contactsLoaded, setContacts: setCachedContacts,
+    interactions, interactionsLoaded, setInteractions: setCachedInteractions,
+  } = useDataStore()
+  const [loading, setLoading] = useState(!interactionsLoaded)
 
   useEffect(() => {
+    if (contactsLoaded && interactionsLoaded) return
     async function load() {
       try {
         const [i, c] = await Promise.all([getAllInteractions(), getContacts()])
-        setInteractions(i)
-        setContacts(c)
+        setCachedInteractions(i)
+        setCachedContacts(c)
       } catch {
         // Continue with empty state
       } finally {
@@ -42,6 +46,7 @@ export default function AktivitaetenPage() {
       }
     }
     load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   function getContactName(contactId: string): string {

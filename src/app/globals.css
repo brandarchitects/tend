@@ -31,6 +31,14 @@
   --ctx-brandarchitects: #C97B4B;
   --ctx-visari: #8B6FC4;
   --ctx-privat: #5CAF7A;
+
+  /* Bottom nav height for safe padding */
+  --bottom-nav-height: calc(52px + env(safe-area-inset-bottom, 0px));
+}
+
+html {
+  /* Allows content to extend into safe area */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
 }
 
 body {

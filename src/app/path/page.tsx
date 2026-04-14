@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { useToast } from "@/components/ui/toast"
+import { useDataStore } from "@/store/data"
 import { getPath, updateActionStatus, getPhaseProgress, isPhaseUnlocked } from "@/lib/path"
 import type { PathPhase, PathAction, ActionStatus } from "@/lib/types"
 import {
@@ -36,8 +37,9 @@ const impactArrows: Record<string, string> = {
 
 export default function PathPage() {
   const { toast } = useToast()
-  const [phases, setPhases] = useState<PathPhase[]>([])
-  const [loading, setLoading] = useState(true)
+  const { phases: cachedPhases, pathLoaded, setPhases: setCachedPhases } = useDataStore()
+  const [phases, setPhases] = useState<PathPhase[]>(cachedPhases)
+  const [loading, setLoading] = useState(!pathLoaded)
   const [expandedPhase, setExpandedPhase] = useState<string | null>(null)
   const [deferActionId, setDeferActionId] = useState<string | null>(null)
   const [deferDate, setDeferDate] = useState("")
@@ -46,16 +48,18 @@ export default function PathPage() {
     try {
       const data = await getPath()
       setPhases(data)
+      setCachedPhases(data)
       // Auto-expand first non-completed unlocked phase
       const firstOpen = data.findIndex(
         (p, i) => isPhaseUnlocked(data, i) && getPhaseProgress(p).percent < 100
       )
-      if (firstOpen >= 0) setExpandedPhase(data[firstOpen].id)
+      if (firstOpen >= 0 && !expandedPhase) setExpandedPhase(data[firstOpen].id)
     } catch (err) {
       console.error("Path laden Fehler:", err)
     } finally {
       setLoading(false)
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => { loadPath() }, [loadPath])

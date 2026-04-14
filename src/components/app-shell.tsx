@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-bg-base">
+      <div className="flex min-h-[100dvh] items-center justify-center bg-bg-base">
         <div className="text-text-secondary">Laden...</div>
       </div>
     )
@@ -30,14 +30,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   if (!user) return null
 
   return (
-    <div className="flex h-screen bg-bg-base">
+    <div className="flex h-[100dvh] bg-bg-base">
       {/* Desktop Sidebar */}
       <div className="hidden lg:block">
         <Sidebar />
       </div>
 
       <main className="flex flex-1 flex-col overflow-hidden">
-        {/* Top bar — hidden on mobile (bottom nav replaces it) */}
+        {/* Top bar — desktop only */}
         <header className="hidden h-14 items-center justify-end border-b border-bg-subtle px-6 lg:flex">
           <button
             onClick={toggleAiPanel}
@@ -54,11 +54,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </header>
 
         {/* Content area */}
-        <div className="flex flex-1 overflow-hidden">
-          <div className="flex-1 overflow-y-auto pb-20 md:pb-0">
-            <div className="mx-auto max-w-[900px] p-4 animate-fade-in md:p-6">
-              {children}
-            </div>
+        <div className="flex-1 overflow-y-auto" style={{ paddingBottom: "var(--bottom-nav-height, 52px)" }}>
+          <div className="mx-auto max-w-[900px] p-4 animate-fade-in md:p-6 lg:pb-6"
+            style={{ paddingBottom: undefined }}
+          >
+            {children}
           </div>
         </div>
       </main>

@@ -3,11 +3,12 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { AppShell } from "@/components/app-shell"
+import { useDataStore } from "@/store/data"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { getContacts, getContactStatus, getDaysOverdue } from "@/lib/contacts"
 import { getAllInteractions } from "@/lib/interactions"
-import type { Contact, Interaction, Context, AiSuggestion } from "@/lib/types"
+import type { Context, AiSuggestion } from "@/lib/types"
 import { Sparkles, Clock, Coffee, Mail, Phone, Link, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -63,64 +64,60 @@ function relativeTime(dateStr: string): string {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [contacts, setContacts] = useState<Contact[]>([])
-  const [interactions, setInteractions] = useState<Interaction[]>([])
+  const {
+    contacts, contactsLoaded, setContacts: setCachedContacts,
+    interactions: cachedInteractions, interactionsLoaded, setInteractions: setCachedInteractions,
+  } = useDataStore()
   const [aiSuggestions, setAiSuggestions] = useState<AiSuggestion[]>([])
   const [aiLoading, setAiLoading] = useState(false)
-  const [loading, setLoading] = useState(true)
 
+  const recentInteractions = cachedInteractions.slice(0, 5)
+
+  // Load data — use cache if available
   useEffect(() => {
     async function load() {
-      try {
-        const [c, i] = await Promise.all([getContacts(), getAllInteractions()])
-        setContacts(c)
-        setInteractions(i.slice(0, 5)) // Last 5
+      let c = contacts
+      if (!contactsLoaded || !interactionsLoaded) {
+        const [newC, newI] = await Promise.all([getContacts(), getAllInteractions()])
+        c = newC
+        setCachedContacts(newC)
+        setCachedInteractions(newI)
+      }
 
-        // Fetch AI recommendations if we have contacts
-        if (c.length > 0) {
-          setAiLoading(true)
-          try {
-            const res = await fetch("/api/ai", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                type: "recommendations",
-                contacts: c.map((contact) => ({
-                  id: contact.id,
-                  name: `${contact.firstName} ${contact.lastName}`,
-                  company: contact.company,
-                  contexts: contact.contexts,
-                  lastInteraction: contact.lastInteractionDate,
-                  daysSinceContact: contact.lastInteractionDate
-                    ? Math.floor((Date.now() - new Date(contact.lastInteractionDate).getTime()) / 86400000)
-                    : null,
-                  touchpointInterval: contact.touchpointIntervalDays,
-                  tags: contact.tags,
-                })),
-              }),
-            })
-            const data = await res.json()
+      // AI recommendations — non-blocking, fire and forget
+      if (c.length > 0 && aiSuggestions.length === 0) {
+        setAiLoading(true)
+        fetch("/api/ai", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "recommendations",
+            contacts: c.map((contact) => ({
+              id: contact.id,
+              name: `${contact.firstName} ${contact.lastName}`,
+              company: contact.company,
+              contexts: contact.contexts,
+              lastInteraction: contact.lastInteractionDate,
+              daysSinceContact: contact.lastInteractionDate
+                ? Math.floor((Date.now() - new Date(contact.lastInteractionDate).getTime()) / 86400000)
+                : null,
+              touchpointInterval: contact.touchpointIntervalDays,
+              tags: contact.tags,
+            })),
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
             if (data.result) {
-              try {
-                const parsed = JSON.parse(data.result)
-                setAiSuggestions(Array.isArray(parsed) ? parsed : [])
-              } catch {
-                setAiSuggestions([])
-              }
+              try { setAiSuggestions(JSON.parse(data.result)) } catch { /* ignore */ }
             }
-          } catch {
-            // AI is optional, continue without
-          } finally {
-            setAiLoading(false)
-          }
-        }
-      } catch {
-        // Continue with empty state
-      } finally {
-        setLoading(false)
+          })
+          .catch(() => {})
+          .finally(() => setAiLoading(false))
       }
     }
     load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const overdueContacts = contacts
@@ -128,7 +125,7 @@ export default function DashboardPage() {
     .sort((a, b) => (getDaysOverdue(b) ?? 0) - (getDaysOverdue(a) ?? 0))
     .slice(0, 5)
 
-  if (loading) {
+  if (!contactsLoaded) {
     return (
       <AppShell>
         <div className="py-16 text-center text-sm text-text-secondary">Laden...</div>
@@ -281,11 +278,11 @@ export default function DashboardPage() {
               <CardTitle className="text-lg">Letzte Aktivitäten</CardTitle>
             </CardHeader>
             <CardContent>
-              {interactions.length === 0 ? (
+              {recentInteractions.length === 0 ? (
                 <p className="text-sm text-text-muted">Noch keine Aktivitäten aufgezeichnet</p>
               ) : (
                 <div className="space-y-3">
-                  {interactions.map((interaction) => {
+                  {recentInteractions.map((interaction) => {
                     const contact = contacts.find((c) => c.id === interaction.contactId)
                     return (
                       <div key={interaction.id} className="flex items-start gap-3">

@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { AppShell } from "@/components/app-shell"
+import { useDataStore } from "@/store/data"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -54,28 +55,49 @@ function initialBgColor(name: string): string {
 export default function KontaktePage() {
   const router = useRouter()
   const [contacts, setContacts] = useState<Contact[]>([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
   const [dialogOpen, setDialogOpen] = useState(false)
   const { activeContextFilter, setContextFilter } = useUIStore()
+  const { contacts: cachedContacts, contactsLoaded, setContacts: setCachedContacts } = useDataStore()
+  const debounceRef = useRef<NodeJS.Timeout>()
 
-  const loadContacts = useCallback(async () => {
+  const loadContacts = useCallback(async (search?: string, filter?: Context | null) => {
+    const s = search ?? searchTerm
+    const f = filter !== undefined ? filter : activeContextFilter
     setLoading(true)
     try {
-      const data = searchTerm
-        ? await searchContacts(searchTerm)
-        : await getContacts(activeContextFilter as Context | undefined)
-      setContacts(data)
+      if (s) {
+        const data = await searchContacts(s)
+        setContacts(data)
+      } else if (contactsLoaded && !f) {
+        // Use cache when no filter and no search
+        setContacts(cachedContacts)
+      } else {
+        const data = await getContacts(f as Context | undefined)
+        setContacts(data)
+        if (!f) setCachedContacts(data) // Cache unfiltered results
+      }
     } catch {
       setContacts([])
     } finally {
       setLoading(false)
     }
-  }, [activeContextFilter, searchTerm])
+  }, [activeContextFilter, searchTerm, contactsLoaded, cachedContacts, setCachedContacts])
 
   useEffect(() => {
     loadContacts()
-  }, [loadContacts])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeContextFilter])
+
+  // Debounced search
+  function handleSearch(value: string) {
+    setSearchTerm(value)
+    clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      loadContacts(value)
+    }, 300)
+  }
 
   return (
     <AppShell>
@@ -115,7 +137,7 @@ export default function KontaktePage() {
         <Input
           placeholder="Kontakte durchsuchen..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
           className="pl-9"
           aria-label="Kontakte suchen"
         />
@@ -185,7 +207,7 @@ export default function KontaktePage() {
       <ContactFormDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        onSaved={loadContacts}
+        onSaved={() => { useDataStore.getState().invalidateContacts(); loadContacts() }}
       />
     </AppShell>
   )
