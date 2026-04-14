@@ -11,6 +11,7 @@ import {
   PanelLeftClose,
   PanelLeft,
   LogOut,
+  Map,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { useUIStore } from "@/store/ui"
@@ -19,6 +20,7 @@ import { useAuth } from "@/lib/auth-context"
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/kontakte", label: "Kontakte", icon: Users },
+  { href: "/path", label: "Network Path", icon: Map },
   { href: "/aktivitaeten", label: "Aktivitäten", icon: Activity },
   { href: "/import-export", label: "Import/Export", icon: ArrowLeftRight },
 ]
