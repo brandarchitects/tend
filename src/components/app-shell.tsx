@@ -37,33 +37,36 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Sidebar />
       </div>
 
+      {/* Main content area */}
       <main className="flex flex-1 flex-col overflow-hidden">
         {/* Top bar — desktop only */}
         <header className="hidden h-14 items-center justify-end border-b border-bg-subtle px-6 lg:flex">
           <button
             onClick={() => setOpen(!isOpen)}
-            className={`flex items-center gap-2 rounded-button px-3 py-1.5 text-sm transition-colors duration-100 ${
+            className={`flex items-center gap-2 rounded-pill px-4 py-2 text-sm font-medium transition-all duration-150 ${
               isOpen
-                ? "bg-accent-subtle text-accent"
-                : "text-text-secondary hover:bg-bg-elevated hover:text-text-primary"
+                ? "bg-accent text-white shadow-lg shadow-accent/20"
+                : "border border-bg-subtle bg-bg-elevated text-text-secondary hover:border-accent/30 hover:text-accent"
             }`}
             aria-label="KI-Assistent öffnen"
           >
             <Sparkles size={16} />
-            <span>KI-Assistent</span>
+            <span>Tend AI</span>
           </button>
         </header>
 
-        {/* Content area */}
-        <div className="flex-1 overflow-y-auto" style={{ paddingBottom: "var(--bottom-nav-height, 52px)" }}>
-          <div className="mx-auto max-w-[900px] p-4 animate-fade-in md:p-6 lg:pb-6">
+        {/* Content */}
+        <div className="flex-1 overflow-y-auto" style={{ paddingBottom: "var(--bottom-nav-height, 0px)" }}>
+          <div className="mx-auto max-w-[900px] p-4 animate-fade-in md:p-6">
             {children}
           </div>
         </div>
       </main>
 
-      {/* Global AI Panel — persists across navigation */}
-      <TendAIPanel />
+      {/* Desktop AI Panel — in layout flow, not overlay */}
+      {isOpen && <TendAIPanel />}
+
+      {/* Mobile AI Panel handled inside TendAIPanel (fullscreen overlay) */}
 
       {/* Mobile Bottom Navigation */}
       <BottomNav />
