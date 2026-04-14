@@ -22,8 +22,31 @@ export default function LoginPage() {
     try {
       await login(email, password)
       router.push("/")
-    } catch {
-      setError("Anmeldung fehlgeschlagen. Bitte überprüfe E-Mail und Passwort.")
+    } catch (err: unknown) {
+      const firebaseError = err as { code?: string; message?: string }
+      console.error("Login-Fehler:", firebaseError.code, firebaseError.message)
+
+      switch (firebaseError.code) {
+        case "auth/invalid-credential":
+        case "auth/wrong-password":
+        case "auth/user-not-found":
+          setError("E-Mail oder Passwort ist falsch.")
+          break
+        case "auth/invalid-email":
+          setError("Ungültige E-Mail-Adresse.")
+          break
+        case "auth/too-many-requests":
+          setError("Zu viele Versuche. Bitte warte einen Moment und versuche es erneut.")
+          break
+        case "auth/network-request-failed":
+          setError("Netzwerkfehler. Prüfe deine Internetverbindung.")
+          break
+        case "auth/invalid-api-key":
+          setError("Firebase ist nicht korrekt konfiguriert. Prüfe die API-Keys in den Vercel Environment Variables.")
+          break
+        default:
+          setError(`Anmeldung fehlgeschlagen: ${firebaseError.code || firebaseError.message || "Unbekannter Fehler"}`)
+      }
     } finally {
       setLoading(false)
     }
@@ -47,6 +70,17 @@ export default function LoginPage() {
             Dein Netzwerk. Gepflegt.
           </p>
         </div>
+
+        {/* Config Warning */}
+        {!process.env.NEXT_PUBLIC_FIREBASE_API_KEY && (
+          <div className="mb-6 rounded-card border border-status-yellow/30 bg-status-yellow/5 p-3">
+            <p className="text-xs text-status-yellow">
+              Firebase ist nicht konfiguriert. Setze die Environment Variables in Vercel
+              (NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+              NEXT_PUBLIC_FIREBASE_PROJECT_ID) und mache ein Redeploy.
+            </p>
+          </div>
+        )}
 
         {/* Login Form */}
         <form onSubmit={handleSubmit} className="space-y-4">

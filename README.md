@@ -52,7 +52,21 @@ Firebase ist die Datenbank, in der deine Kontakte gespeichert werden, und das Lo
 4. Klicke **"Nutzer hinzufügen"**
 5. **Merke dir diese Zugangsdaten** — damit meldest du dich in Tend an
 
-#### 1.5 Datenbank aktivieren (Firestore)
+#### 1.5 Vercel-Domain autorisieren (wichtig!)
+
+Damit der Login von deiner Vercel-URL funktioniert, muss die Domain in Firebase freigegeben werden:
+
+1. In Firebase, klicke im linken Menü auf **"Authentication"**
+2. Klicke auf den Tab **"Settings"** (Einstellungen)
+3. Scrolle zu **"Autorisierte Domains"**
+4. Klicke **"Domain hinzufügen"**
+5. Gib deine Vercel-URL ein, z.B. `tend-abc123.vercel.app` (ohne `https://`)
+6. Falls du eine eigene Domain nutzt, füge auch diese hinzu
+7. Klicke **"Hinzufügen"**
+
+> Ohne diesen Schritt blockiert Firebase den Login von deiner Domain!
+
+#### 1.6 Datenbank aktivieren (Firestore)
 
 1. Im linken Menü klicke auf **"Firestore Database"**
 2. Klicke **"Datenbank erstellen"**
@@ -60,7 +74,7 @@ Firebase ist die Datenbank, in der deine Kontakte gespeichert werden, und das Lo
 4. Sicherheitsregeln: wähle **"Im Produktionsmodus starten"**
 5. Klicke **"Erstellen"**
 
-#### 1.6 Sicherheitsregeln setzen
+#### 1.7 Sicherheitsregeln setzen
 
 Damit nur du (eingeloggt) auf die Daten zugreifen kannst:
 
@@ -80,7 +94,7 @@ service cloud.firestore {
 
 3. Klicke **"Veröffentlichen"**
 
-#### 1.7 Firestore-Indexe erstellen
+#### 1.8 Firestore-Indexe erstellen
 
 Tend braucht zwei Such-Indexe. Erstelle sie so:
 
@@ -285,8 +299,17 @@ Auf der Übersichtsseite der App siehst du:
 
 ## Hilfe & Fehlerbehebung
 
-**"Anmeldung fehlgeschlagen"**
-→ Überprüfe E-Mail und Passwort. Stelle sicher, dass du den User in Firebase Authentication erstellt hast (Schritt 1.4).
+**"Anmeldung fehlgeschlagen" / Login funktioniert nicht**
+→ Drei Dinge prüfen:
+1. **Domain autorisiert?** In Firebase → Authentication → Settings → "Autorisierte Domains" — deine Vercel-URL muss dort stehen (Schritt 1.5)
+2. **User angelegt?** In Firebase → Authentication → Users — steht dort deine E-Mail? (Schritt 1.4)
+3. **Environment Variables korrekt?** In Vercel → Settings → Environment Variables — `NEXT_PUBLIC_FIREBASE_API_KEY`, `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN`, `NEXT_PUBLIC_FIREBASE_PROJECT_ID` müssen gesetzt sein. Nach Änderungen: Redeploy machen
+
+**"Zu viele Versuche"**
+→ Firebase sperrt nach mehreren Fehlversuchen temporär. Warte 5 Minuten und versuche es erneut.
+
+**"Firebase ist nicht korrekt konfiguriert"**
+→ Die Environment Variables in Vercel sind leer oder falsch. Gehe zu Vercel → Settings → Environment Variables und prüfe die drei `NEXT_PUBLIC_FIREBASE_...` Werte. Danach Redeploy.
 
 **"Keine Kontakte werden geladen"**
 → Prüfe ob die Firebase-Umgebungsvariablen in Vercel korrekt gesetzt sind. Nach Änderungen an Variablen musst du ein Redeploy machen.
