@@ -65,6 +65,8 @@ export default function LoginPage() {
       <div className="relative z-10 w-full max-w-sm px-6">
         {/* Logo */}
         <div className="mb-12 text-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/images/TREE.png" alt="" className="mx-auto mb-4 h-16 w-16" onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }} />
           <h1 className="font-serif text-display text-text-primary">Tend</h1>
           <p className="mt-2 text-sm text-text-secondary">
             Dein Netzwerk. Gepflegt.

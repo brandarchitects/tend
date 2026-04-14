@@ -44,7 +44,15 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex h-14 items-center justify-between px-4">
         {!sidebarCollapsed && (
-          <span className="font-serif text-xl text-text-primary">Tend</span>
+          <div className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/images/TREE.png" alt="Tend" className="h-6 w-6" onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }} />
+            <span className="font-serif text-xl text-text-primary">Tend</span>
+          </div>
+        )}
+        {sidebarCollapsed && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src="/images/TREE.png" alt="Tend" className="h-6 w-6" onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }} />
         )}
         <button
           onClick={toggleSidebar}
