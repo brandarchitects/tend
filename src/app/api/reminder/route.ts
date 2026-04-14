@@ -53,10 +53,10 @@ export async function GET(req: NextRequest) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: "Nexus <noreply@nexus.app>",
+          from: "Tend <noreply@tend.app>",
           to: ["pascal@example.ch"], // TODO: Configure in settings
-          subject: `Nexus: ${overdueContacts.length} Touchpoint${overdueContacts.length > 1 ? "s" : ""} fällig`,
-          text: `Hallo Pascal,\n\nFolgende Kontakte warten auf ein Lebenszeichen:\n\n${emailBody}\n\nÖffne Nexus um Details zu sehen.\n\nDein Nexus-Assistent`,
+          subject: `Tend: ${overdueContacts.length} Touchpoint${overdueContacts.length > 1 ? "s" : ""} fällig`,
+          text: `Hallo Pascal,\n\nFolgende Kontakte warten auf ein Lebenszeichen:\n\n${emailBody}\n\nÖffne Tend um Details zu sehen.\n\nDein Tend-Assistent`,
         }),
       })
     }

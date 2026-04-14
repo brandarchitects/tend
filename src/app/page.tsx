@@ -151,7 +151,7 @@ export default function DashboardPage() {
         <Card className="text-center">
           <CardContent className="py-12">
             <p className="text-sm text-text-secondary">
-              Willkommen bei Nexus! Erstelle deinen ersten Kontakt um loszulegen.
+              Willkommen bei Tend! Erstelle deinen ersten Kontakt um loszulegen.
             </p>
             <Button className="mt-4" onClick={() => router.push("/kontakte")}>
               <Plus size={14} className="mr-1" />

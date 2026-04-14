@@ -1,4 +1,4 @@
-# Nexus — Dein Netzwerk. Gepflegt.
+# Tend — Dein Netzwerk. Gepflegt.
 
 Persönliches CRM im Browser. Kontakte verwalten, Beziehungen pflegen, KI-Empfehlungen erhalten.
 
@@ -19,7 +19,7 @@ Firebase ist die Datenbank, in der deine Kontakte gespeichert werden, und das Lo
 1. Öffne [console.firebase.google.com](https://console.firebase.google.com/)
 2. Melde dich mit deinem Google-Konto an
 3. Klicke **"Projekt erstellen"**
-4. Projektname: `nexus-crm` (oder ein Name deiner Wahl)
+4. Projektname: `tend-crm` (oder ein Name deiner Wahl)
 5. Google Analytics: kannst du **deaktivieren** (brauchst du nicht)
 6. Klicke **"Projekt erstellen"** und warte bis es fertig ist
 7. Klicke **"Weiter"**
@@ -27,7 +27,7 @@ Firebase ist die Datenbank, in der deine Kontakte gespeichert werden, und das Lo
 #### 1.2 Web-App registrieren
 
 1. Auf der Projekt-Startseite klicke das **Web-Symbol** `</>` (sieht aus wie spitze Klammern)
-2. App-Name: `Nexus`
+2. App-Name: `Tend`
 3. Firebase Hosting: **nicht** ankreuzen
 4. Klicke **"App registrieren"**
 5. Du siehst jetzt einen Code-Block mit deiner Konfiguration. **Notiere dir diese drei Werte:**
@@ -50,7 +50,7 @@ Firebase ist die Datenbank, in der deine Kontakte gespeichert werden, und das Lo
 2. Klicke **"Nutzer hinzufügen"**
 3. Gib deine E-Mail-Adresse und ein sicheres Passwort ein
 4. Klicke **"Nutzer hinzufügen"**
-5. **Merke dir diese Zugangsdaten** — damit meldest du dich in Nexus an
+5. **Merke dir diese Zugangsdaten** — damit meldest du dich in Tend an
 
 #### 1.5 Datenbank aktivieren (Firestore)
 
@@ -82,7 +82,7 @@ service cloud.firestore {
 
 #### 1.7 Firestore-Indexe erstellen
 
-Nexus braucht zwei Such-Indexe. Erstelle sie so:
+Tend braucht zwei Such-Indexe. Erstelle sie so:
 
 1. In Firestore, klicke auf den Tab **"Indexe"**
 2. Klicke **"Index erstellen"**
@@ -110,7 +110,7 @@ Die KI-Empfehlungen auf dem Dashboard kommen von Claude (Anthropic).
 2. Erstelle ein Konto oder melde dich an
 3. Gehe zu **"API Keys"** (im linken Menü)
 4. Klicke **"Create Key"**
-5. Name: `Nexus`
+5. Name: `Tend`
 6. Kopiere den angezeigten Key — er beginnt mit `sk-ant-...`
 7. **Speichere ihn sicher** — du siehst ihn nur einmal
 
@@ -126,11 +126,11 @@ Resend sendet dir täglich eine E-Mail wenn Touchpoints fällig sind.
 2. Erstelle ein Konto (kostenlos, 100 E-Mails/Tag reichen für dich)
 3. Gehe zu **"API Keys"**
 4. Klicke **"Create API Key"**
-5. Name: `Nexus`
+5. Name: `Tend`
 6. Permission: **"Sending access"**
 7. Kopiere den Key — er beginnt mit `re_...`
 
-> **Wichtig:** Im Free-Plan kann Resend nur an deine eigene E-Mail senden. Das reicht für Nexus (du bist der einzige Nutzer). Wenn du eine eigene Domain hast, kannst du diese später unter "Domains" verifizieren.
+> **Wichtig:** Im Free-Plan kann Resend nur an deine eigene E-Mail senden. Das reicht für Tend (du bist der einzige Nutzer). Wenn du eine eigene Domain hast, kannst du diese später unter "Domains" verifizieren.
 
 ---
 
@@ -169,7 +169,7 @@ Bevor du deployst, musst du die Schlüssel eintragen:
 #### 4.3 Eigene Domain verbinden (optional)
 
 1. In Vercel, gehe zu deinem Projekt → **"Settings" → "Domains"**
-2. Gib deine gewünschte Domain ein, z.B. `nexus.pascalstoeckli.ch`
+2. Gib deine gewünschte Domain ein, z.B. `tend.pascalstoeckli.ch`
 3. Vercel zeigt dir DNS-Einstellungen die du bei deinem Domain-Anbieter setzen musst
 4. Bei deinem Domain-Anbieter: erstelle einen **CNAME-Eintrag** der auf `cname.vercel-dns.com` zeigt
 
@@ -177,7 +177,7 @@ Bevor du deployst, musst du die Schlüssel eintragen:
 
 ### Schritt 5: Microsoft Outlook verbinden (optional)
 
-Damit du Termine direkt aus Nexus in deinen Outlook-Kalender buchen kannst.
+Damit du Termine direkt aus Tend in deinen Outlook-Kalender buchen kannst.
 
 > Dieser Schritt ist **optional** und etwas aufwändiger. Du kannst ihn auch später machen.
 
@@ -187,7 +187,7 @@ Damit du Termine direkt aus Nexus in deinen Outlook-Kalender buchen kannst.
 2. Melde dich mit deinem Microsoft-Konto an
 3. Suche oben in der Suchleiste nach **"App-Registrierungen"** und klicke darauf
 4. Klicke **"Neue Registrierung"**
-5. Name: `Nexus CRM`
+5. Name: `Tend CRM`
 6. Unterstützte Kontotypen: **"Konten in einem beliebigen Organisationsverzeichnis und persönliche Microsoft-Konten"**
 7. Umleitungs-URI:
    - Typ: **Web**
@@ -205,7 +205,7 @@ Auf der Übersichtsseite der App siehst du:
 
 1. Im linken Menü klicke auf **"Zertifikate & Geheimnisse"**
 2. Klicke **"Neuer geheimer Clientschlüssel"**
-3. Beschreibung: `Nexus`
+3. Beschreibung: `Tend`
 4. Ablauf: **24 Monate**
 5. Klicke **"Hinzufügen"**
 6. Kopiere den **"Wert"** (nicht die ID!) → das ist dein `MICROSOFT_CLIENT_SECRET`
@@ -231,20 +231,20 @@ Auf der Übersichtsseite der App siehst du:
 3. Klicke **"Save"**
 4. Gehe zu **"Deployments"** → klicke auf die drei Punkte beim letzten Deployment → **"Redeploy"**
 
-#### 5.6 In Nexus verbinden
+#### 5.6 In Tend verbinden
 
-1. Öffne Nexus in deinem Browser
+1. Öffne Tend in deinem Browser
 2. Gehe zu **Einstellungen**
 3. Klicke **"Mit Microsoft verbinden"**
 4. Melde dich mit deinem Microsoft-Konto an und erteile die Berechtigungen
-5. Du wirst zurück zu Nexus geleitet — fertig!
+5. Du wirst zurück zu Tend geleitet — fertig!
 
 ---
 
 ## Tägliche Nutzung
 
 ### Erster Login
-1. Öffne deine Nexus-URL im Browser
+1. Öffne deine Tend-URL im Browser
 2. Gib die E-Mail und das Passwort ein, das du in Schritt 1.4 erstellt hast
 3. Du siehst das Dashboard
 

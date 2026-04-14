@@ -15,7 +15,7 @@ const geistMono = localFont({
 })
 
 export const metadata: Metadata = {
-  title: "Nexus — Dein Netzwerk. Gepflegt.",
+  title: "Tend — Dein Netzwerk. Gepflegt.",
   description: "Persönliches CRM für Netzwerkpflege",
 }
 

@@ -37,7 +37,7 @@ function EinstellungenContent() {
       <div className="mb-6">
         <h1 className="font-serif text-2xl text-text-primary">Einstellungen</h1>
         <p className="mt-1 text-sm text-text-secondary">
-          Konfiguriere Nexus nach deinen Bedürfnissen
+          Konfiguriere Tend nach deinen Bedürfnissen
         </p>
       </div>
 
@@ -49,7 +49,7 @@ function EinstellungenContent() {
           </CardHeader>
           <CardContent>
             <p className="mb-4 text-sm text-text-secondary">
-              Verbinde deinen Outlook-Kalender, um Termine direkt aus Nexus zu buchen.
+              Verbinde deinen Outlook-Kalender, um Termine direkt aus Tend zu buchen.
             </p>
             <Button
               variant="outline"

@@ -44,7 +44,7 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex h-14 items-center justify-between px-4">
         {!sidebarCollapsed && (
-          <span className="font-serif text-xl text-text-primary">Nexus</span>
+          <span className="font-serif text-xl text-text-primary">Tend</span>
         )}
         <button
           onClick={toggleSidebar}

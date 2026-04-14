@@ -124,7 +124,7 @@ export default function ImportExportPage() {
       const url = URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
-      a.download = "nexus-kontakte.vcf"
+      a.download = "tend-kontakte.vcf"
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)
