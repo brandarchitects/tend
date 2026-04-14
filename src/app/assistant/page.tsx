@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { getContacts } from "@/lib/contacts"
 import { getAllInteractions } from "@/lib/interactions"
+import { getStrategy } from "@/lib/strategy"
 import type { ChatMessage, Contact, Interaction } from "@/lib/types"
 import { Send, Sparkles, User } from "lucide-react"
 import ReactMarkdown from "react-markdown"
@@ -16,6 +17,7 @@ export default function AssistantPage() {
   const [streaming, setStreaming] = useState(false)
   const [contacts, setContacts] = useState<Contact[]>([])
   const [interactions, setInteractions] = useState<Interaction[]>([])
+  const [strategy, setStrategy] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -29,13 +31,14 @@ export default function AssistantPage() {
   // Load contacts and start proactive greeting
   useEffect(() => {
     async function init() {
-      const [c, i] = await Promise.all([getContacts(), getAllInteractions()])
+      const [c, i, s] = await Promise.all([getContacts(), getAllInteractions(), getStrategy()])
       setContacts(c)
       setInteractions(i.slice(0, 10))
+      setStrategy(s?.content ?? null)
 
       if (c.length > 0) {
         // Send proactive greeting
-        await sendMessage("START", c, i.slice(0, 10), true)
+        await sendMessage("START", c, i.slice(0, 10), s?.content ?? null, true)
       }
       setInitialized(true)
     }
@@ -47,6 +50,7 @@ export default function AssistantPage() {
     content: string,
     contactsData?: Contact[],
     interactionsData?: Interaction[],
+    strategyData?: string | null,
     isInit?: boolean
   ) {
     const userMsg: ChatMessage = {
@@ -88,6 +92,7 @@ export default function AssistantPage() {
             sphere: c.sphere,
             zone: c.zone,
           })),
+          strategy: strategyData !== undefined ? strategyData : strategy,
           interactions: (interactionsData ?? interactions).map((i) => ({
             contactId: i.contactId,
             channel: i.channel,
@@ -140,7 +145,7 @@ export default function AssistantPage() {
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!input.trim() || streaming) return
-    sendMessage(input.trim())
+    sendMessage(input.trim(), undefined, undefined, undefined, false)
   }
 
   return (

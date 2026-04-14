@@ -1,13 +1,13 @@
 "use client"
 
-import { Suspense } from "react"
+import { Suspense, useState, useEffect, useCallback } from "react"
 import { useSearchParams } from "next/navigation"
-import { useEffect } from "react"
 import { AppShell } from "@/components/app-shell"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/toast"
-import { ExternalLink } from "lucide-react"
+import { getStrategy, saveStrategy } from "@/lib/strategy"
+import { ExternalLink, Upload, FileText, Check, RefreshCw } from "lucide-react"
 
 export default function EinstellungenPage() {
   return (
@@ -20,6 +20,12 @@ export default function EinstellungenPage() {
 function EinstellungenContent() {
   const searchParams = useSearchParams()
   const { toast } = useToast()
+  const [strategyInfo, setStrategyInfo] = useState<{
+    filename: string
+    uploadedAt: string
+    characters: number
+  } | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   useEffect(() => {
     const success = searchParams.get("success")
@@ -32,6 +38,72 @@ function EinstellungenContent() {
     }
   }, [searchParams, toast])
 
+  const loadStrategy = useCallback(async () => {
+    try {
+      const data = await getStrategy()
+      if (data) {
+        setStrategyInfo({
+          filename: data.filename,
+          uploadedAt: data.uploadedAt,
+          characters: data.characters,
+        })
+      }
+    } catch {
+      // No strategy yet
+    }
+  }, [])
+
+  useEffect(() => { loadStrategy() }, [loadStrategy])
+
+  async function handleStrategyUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (!file.name.endsWith(".docx")) {
+      toast("Nur .docx Dateien werden unterstützt", "error")
+      return
+    }
+
+    setUploading(true)
+    try {
+      // Send file to API for text extraction
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const res = await fetch("/api/strategy", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+
+      // Save extracted text to Firestore
+      const now = new Date().toISOString()
+      await saveStrategy({
+        content: data.text,
+        filename: data.filename,
+        uploadedAt: now,
+        characters: data.characters,
+      })
+
+      setStrategyInfo({
+        filename: data.filename,
+        uploadedAt: now,
+        characters: data.characters,
+      })
+
+      toast("Netzwerkstrategie aktualisiert", "success")
+    } catch (err) {
+      console.error("Upload Fehler:", err)
+      toast("Fehler beim Hochladen der Strategie", "error")
+    } finally {
+      setUploading(false)
+      // Reset file input
+      e.target.value = ""
+    }
+  }
+
   return (
     <AppShell>
       <div className="mb-6">
@@ -42,6 +114,68 @@ function EinstellungenContent() {
       </div>
 
       <div className="space-y-6">
+        {/* Strategy Upload */}
+        <Card className="border-l-[3px] border-l-accent">
+          <CardHeader>
+            <CardTitle className="text-lg">Netzwerkstrategie</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-sm text-text-secondary">
+              Lade deine Netzwerkstrategie als .docx Datei hoch. Der KI-Assistent nutzt
+              sie als Kontext für personalisierte Empfehlungen. Du kannst jederzeit eine
+              neue Version hochladen.
+            </p>
+
+            {strategyInfo && (
+              <div className="mb-4 flex items-start gap-3 rounded-card bg-bg-elevated p-3">
+                <FileText size={16} className="mt-0.5 shrink-0 text-accent" />
+                <div>
+                  <p className="text-sm font-medium text-text-primary">{strategyInfo.filename}</p>
+                  <p className="text-xs text-text-muted">
+                    {strategyInfo.characters.toLocaleString("de-CH")} Zeichen ·
+                    Hochgeladen am{" "}
+                    {new Date(strategyInfo.uploadedAt).toLocaleDateString("de-CH", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                </div>
+                <Check size={14} className="shrink-0 text-status-green" />
+              </div>
+            )}
+
+            <label>
+              <span className={`inline-flex cursor-pointer items-center gap-2 rounded-button px-4 py-2 text-sm font-medium transition-colors ${
+                strategyInfo
+                  ? "border border-bg-subtle text-text-primary hover:bg-bg-elevated"
+                  : "bg-accent text-white hover:bg-accent-hover"
+              } ${uploading ? "pointer-events-none opacity-50" : ""}`}>
+                {uploading ? (
+                  <RefreshCw size={14} className="animate-spin" />
+                ) : (
+                  <Upload size={14} />
+                )}
+                {uploading
+                  ? "Verarbeiten..."
+                  : strategyInfo
+                  ? "Neue Version hochladen"
+                  : "Strategie hochladen"}
+              </span>
+              <input
+                type="file"
+                accept=".docx"
+                className="hidden"
+                onChange={handleStrategyUpload}
+                disabled={uploading}
+                aria-label="Strategie-Datei auswählen"
+              />
+            </label>
+          </CardContent>
+        </Card>
+
         {/* Microsoft Account */}
         <Card>
           <CardHeader>
@@ -107,7 +241,7 @@ function EinstellungenContent() {
           </CardContent>
         </Card>
 
-        {/* API Status */}
+        {/* Integrations */}
         <Card>
           <CardHeader>
             <CardTitle className="text-lg">Integrationen</CardTitle>
@@ -116,7 +250,7 @@ function EinstellungenContent() {
             <div className="space-y-2">
               {[
                 { name: "Firebase", desc: "Datenbank & Authentifizierung" },
-                { name: "Claude KI", desc: "Netzwerk-Empfehlungen" },
+                { name: "Claude KI", desc: "Netzwerk-Empfehlungen & Chat" },
                 { name: "Resend", desc: "E-Mail-Benachrichtigungen" },
                 { name: "Microsoft Graph", desc: "Outlook-Kalender" },
               ].map((integration) => (
