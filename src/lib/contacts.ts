@@ -47,14 +47,21 @@ export async function getContact(id: string): Promise<Contact | null> {
   return { id: snapshot.id, ...snapshot.data() } as Contact
 }
 
+// Remove undefined values — Firestore doesn't accept them
+function stripUndefined<T extends Record<string, unknown>>(obj: T): T {
+  return Object.fromEntries(
+    Object.entries(obj).filter(([, v]) => v !== undefined)
+  ) as T
+}
+
 export async function createContact(data: Omit<ContactDoc, "createdAt" | "updatedAt" | "nextTouchpointDate">): Promise<string> {
   const now = new Date().toISOString()
-  const contactData: ContactDoc = {
+  const contactData = stripUndefined({
     ...data,
     nextTouchpointDate: computeNextTouchpoint(data.lastInteractionDate, data.touchpointIntervalDays),
     createdAt: now,
     updatedAt: now,
-  }
+  })
   const docRef = await addDoc(contactsRef(), contactData)
   return docRef.id
 }
@@ -76,7 +83,7 @@ export async function updateContact(id: string, data: Partial<ContactDoc>): Prom
     }
   }
 
-  await updateDoc(docRef, updateData)
+  await updateDoc(docRef, stripUndefined(updateData))
 }
 
 export async function deleteContact(id: string): Promise<void> {
